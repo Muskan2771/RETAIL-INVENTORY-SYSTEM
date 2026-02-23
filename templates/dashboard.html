@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h2>Revenue Dashboard</h2>
+
+<div class="card">
+    <h3>Total Revenue: ₹{{ total_revenue }}</h3>
+    <h3>Low Stock Products: {{ low_stock_count }}</h3>
+</div>
+
+<div class="card">
+    <img src="{{ chart }}" width="600">
+</div>
+
+{% endblock %}

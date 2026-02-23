@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h2>Record Sale</h2>
+
+<div class="card">
+<form method="POST">
+
+    <select name="product_id" required>
+        <option value="">Select Product</option>
+        {% for product in products %}
+        <option value="{{ product.ProductID }}">
+            {{ product.ProductName }} (Stock: {{ product.Quantity }})
+        </option>
+        {% endfor %}
+    </select><br><br>
+
+    <input type="number" name="quantity" placeholder="Quantity" required><br><br>
+
+    <input type="date" name="date" required><br><br>
+
+    <button type="submit">Record Sale</button>
+
+</form>
+</div>
+
+{% endblock %}

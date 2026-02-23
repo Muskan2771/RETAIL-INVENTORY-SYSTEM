@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Retail Inventory</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<h1>Retail Inventory System</h1>
+
+<a href="/add-product_page">Add Product</a> |
+<a href="/record-sale_page">Record Sale</a> |
+<a href="/dashboard">Dashboard</a>
+
+<h2>Product List</h2>
+
+<table>
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Price</th>
+        <th>Stock</th>
+    </tr>
+
+    {% for product in products %}
+    <tr>
+        <td>{{ product[0] }}</td>
+        <td>{{ product[1] }}</td>
+        <td>{{ product[2] }}</td>
+        <td>{{ product[3] }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+</body>
+</html>

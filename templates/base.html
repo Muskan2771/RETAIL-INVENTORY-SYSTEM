@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ title }}</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .sidebar {
+            width: 220px;
+            height: 100vh;
+            position: fixed;
+            background: rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+            padding-top: 30px;
+        }
+
+        .sidebar h2 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .sidebar a {
+            display: block;
+            padding: 12px 20px;
+            color: white;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+
+        .sidebar a:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .content {
+            margin-left: 240px;
+            padding: 30px;
+        }
+
+        .card {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        table th, table td {
+            padding: 12px;
+            text-align: left;
+        }
+
+        table tr:nth-child(even) {
+            background: rgba(255,255,255,0.1);
+        }
+
+        button {
+            padding: 10px 15px;
+            border-radius: 20px;
+            border: none;
+            background: linear-gradient(90deg, #ff512f, #dd2476);
+            color: white;
+            cursor: pointer;
+        }
+
+        input {
+            padding: 8px;
+            border-radius: 8px;
+            border: none;
+            margin-bottom: 10px;
+        }
+
+    </style>
+</head>
+
+<body>
+
+<div class="sidebar">
+    <h2>Retail System</h2>
+    <a href="/dashboard">Dashboard</a>
+    <a href="/top-products">Top Products</a>
+    <a href="/low_stock">Low Stock</a>
+    <a href="/sales-history">Sales History</a>
+    <a href="/add-product">Add Product</a>
+    <a href="/record-sale">Record Sale</a>
+    <a href="/search">Search</a>
+    <a href="/logout">Logout</a>
+</div>
+
+<div class="content">
+    {% block content %}{% endblock %}
+</div>
+
+</body>
+</html>
