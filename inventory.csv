@@ -1,0 +1,8 @@
+ProductID,ProductName,Category,Price,Quantity
+1,Shampoo,Personal Care,200,10
+2,Soap,Personal Care,50,4
+3,Toothpaste,Personal Care,120,4
+4,Notebook,Stationery,30,13
+5,Pen,Stationery,10,46
+6,Car toy,toy,300,20
+7,pencil,Stationery,10,4
