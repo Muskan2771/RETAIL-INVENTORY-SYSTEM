@@ -6,11 +6,16 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
+# ------------------------------
+# BASE DIRECTORY FIX (IMPORTANT FOR DEPLOYMENT)
+# ------------------------------
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 app = Flask(__name__)
-app.secret_key = "your_super_secret_key"
+app.secret_key = os.environ.get("SECRET_KEY", "dev_secret_key")
 
 # ------------------------------
-# LOGIN ROUTE
+# LOGIN
 # ------------------------------
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -20,7 +25,7 @@ def login():
         username = request.form['username'].strip()
         password = request.form['password'].strip()
 
-        df_users = pd.read_csv('users.csv')
+        df_users = pd.read_csv(os.path.join(BASE_DIR, 'users.csv'))
 
         df_users['username'] = df_users['username'].astype(str).str.strip()
         df_users['password'] = df_users['password'].astype(str).str.strip()
@@ -38,6 +43,7 @@ def login():
 
     return render_template('login.html', error=error)
 
+
 # ------------------------------
 # LOGOUT
 # ------------------------------
@@ -48,7 +54,7 @@ def logout():
 
 
 # ------------------------------
-# PROTECT ROUTES
+# LOGIN PROTECTION
 # ------------------------------
 @app.before_request
 def require_login():
@@ -71,56 +77,48 @@ def home():
 # ------------------------------
 @app.route('/dashboard')
 def dashboard():
-    df_sales = pd.read_csv('sales.csv')
-    df_inventory = pd.read_csv('inventory.csv')
 
-    # Revenue per product
-    revenue_per_product = df_sales.groupby('ProductName')['Total'].sum()
+    df_sales = pd.read_csv(os.path.join(BASE_DIR, 'sales.csv'))
+    df_inventory = pd.read_csv(os.path.join(BASE_DIR, 'inventory.csv'))
+
+    revenue = df_sales.groupby('ProductName')['Total'].sum()
 
     plt.figure(figsize=(6, 4))
-    revenue_per_product.plot(kind='bar')
-    plt.title('Revenue per Product')
-    plt.ylabel('Revenue')
+    revenue.plot(kind='bar')
+    plt.title("Revenue per Product")
     plt.tight_layout()
 
-    chart_path = os.path.join('static', 'chart.png')
+    chart_path = os.path.join(BASE_DIR, 'static', 'chart.png')
     plt.savefig(chart_path)
     plt.close()
 
     total_revenue = df_sales['Total'].sum()
-
-    threshold = 5
-    low_stock_count = df_inventory[df_inventory['Quantity'] < threshold].shape[0]
+    low_stock = df_inventory[df_inventory['Quantity'] < 5].shape[0]
 
     return render_template(
         'dashboard.html',
         chart=url_for('static', filename='chart.png'),
         total_revenue=total_revenue,
-        low_stock_count=low_stock_count
+        low_stock_count=low_stock
     )
 
 
 # ------------------------------
-# TOP 5 PRODUCTS
+# TOP PRODUCTS
 # ------------------------------
 @app.route('/top-products')
 def top_products():
-    df_sales = pd.read_csv('sales.csv')
 
-    top5 = (
-        df_sales.groupby('ProductName')['Quantity']
-        .sum()
-        .sort_values(ascending=False)
-        .head(5)
-    )
+    df_sales = pd.read_csv(os.path.join(BASE_DIR, 'sales.csv'))
+
+    top5 = df_sales.groupby('ProductName')['Quantity'].sum().sort_values(ascending=False).head(5)
 
     plt.figure(figsize=(6, 4))
     top5.plot(kind='bar')
-    plt.title('Top 5 Selling Products')
-    plt.ylabel('Quantity Sold')
+    plt.title("Top 5 Products")
     plt.tight_layout()
 
-    chart_path = os.path.join('static', 'top_products.png')
+    chart_path = os.path.join(BASE_DIR, 'static', 'top_products.png')
     plt.savefig(chart_path)
     plt.close()
 
@@ -135,14 +133,14 @@ def top_products():
 # ------------------------------
 @app.route('/low_stock')
 def low_stock():
-    df_inventory = pd.read_csv('inventory.csv')
 
-    threshold = 5
-    low_items = df_inventory[df_inventory['Quantity'] < threshold]
+    df_inventory = pd.read_csv(os.path.join(BASE_DIR, 'inventory.csv'))
+
+    items = df_inventory[df_inventory['Quantity'] < 5]
 
     return render_template(
         'low_stock.html',
-        items=low_items.to_dict(orient='records')
+        items=items.to_dict(orient='records')
     )
 
 
@@ -151,12 +149,12 @@ def low_stock():
 # ------------------------------
 @app.route('/search')
 def search():
+
     query = request.args.get('query', '')
 
-    df = pd.read_csv('inventory.csv')
-    filtered = df[
-        df['ProductName'].str.contains(query, case=False, na=False)
-    ]
+    df = pd.read_csv(os.path.join(BASE_DIR, 'inventory.csv'))
+
+    filtered = df[df['ProductName'].str.contains(query, case=False, na=False)]
 
     return render_template(
         'search.html',
@@ -169,8 +167,8 @@ def search():
 # ------------------------------
 @app.route('/sales-history')
 def sales_history():
-    df_sales = pd.read_csv('sales.csv')
 
+    df_sales = pd.read_csv(os.path.join(BASE_DIR, 'sales.csv'))
     df_sales = df_sales.sort_values(by='Date', ascending=False)
 
     return render_template(
@@ -184,25 +182,21 @@ def sales_history():
 # ------------------------------
 @app.route('/add-product', methods=['GET', 'POST'])
 def add_product():
-    if request.method == 'POST':
-        product_id = request.form['product_id']
-        name = request.form['name']
-        category = request.form['category']
-        price = float(request.form['price'])
-        quantity = int(request.form['quantity'])
 
-        df = pd.read_csv('inventory.csv')
+    if request.method == 'POST':
+
+        df = pd.read_csv(os.path.join(BASE_DIR, 'inventory.csv'))
 
         new_row = pd.DataFrame([{
-            'ProductID': product_id,
-            'ProductName': name,
-            'Category': category,
-            'Price': price,
-            'Quantity': quantity
+            'ProductID': request.form['product_id'],
+            'ProductName': request.form['name'],
+            'Category': request.form['category'],
+            'Price': float(request.form['price']),
+            'Quantity': int(request.form['quantity'])
         }])
 
         df = pd.concat([df, new_row], ignore_index=True)
-        df.to_csv('inventory.csv', index=False)
+        df.to_csv(os.path.join(BASE_DIR, 'inventory.csv'), index=False)
 
         return redirect('/dashboard')
 
@@ -214,25 +208,26 @@ def add_product():
 # ------------------------------
 @app.route('/record-sale', methods=['GET', 'POST'])
 def record_sale():
+
     if request.method == 'POST':
+
+        df_inventory = pd.read_csv(os.path.join(BASE_DIR, 'inventory.csv'))
+
         product_id = int(request.form['product_id'])
         quantity_sold = int(request.form['quantity'])
         date = request.form['date']
 
-        df_inventory = pd.read_csv('inventory.csv')
-
         product = df_inventory[df_inventory['ProductID'] == product_id]
 
         if product.empty:
-            return "Product ID not found!"
+            return "Product not found!"
 
-        current_quantity = int(product.iloc[0]['Quantity'])
-
-        if quantity_sold > current_quantity:
-            return "Not enough stock available!"
+        if quantity_sold > int(product.iloc[0]['Quantity']):
+            return "Not enough stock!"
 
         product_name = product.iloc[0]['ProductName']
         price = float(product.iloc[0]['Price'])
+
         total = price * quantity_sold
 
         df_inventory.loc[
@@ -240,9 +235,9 @@ def record_sale():
             'Quantity'
         ] -= quantity_sold
 
-        df_inventory.to_csv('inventory.csv', index=False)
+        df_inventory.to_csv(os.path.join(BASE_DIR, 'inventory.csv'), index=False)
 
-        df_sales = pd.read_csv('sales.csv')
+        df_sales = pd.read_csv(os.path.join(BASE_DIR, 'sales.csv'))
 
         sale_id = 1 if df_sales.empty else df_sales['SaleID'].max() + 1
 
@@ -256,18 +251,20 @@ def record_sale():
         }])
 
         df_sales = pd.concat([df_sales, new_sale], ignore_index=True)
-        df_sales.to_csv('sales.csv', index=False)
+        df_sales.to_csv(os.path.join(BASE_DIR, 'sales.csv'), index=False)
 
         return redirect('/dashboard')
 
-    # 🔥 SEND PRODUCTS TO TEMPLATE
-    df_inventory = pd.read_csv('inventory.csv')
+    df_inventory = pd.read_csv(os.path.join(BASE_DIR, 'inventory.csv'))
+
     return render_template(
         'record_sale.html',
         products=df_inventory.to_dict(orient='records')
     )
+
+
 # ------------------------------
-# RUN APP
+# RUN
 # ------------------------------
 if __name__ == '__main__':
     app.run(debug=True)
