@@ -1,5 +1,7 @@
 # 📦 Inventory & Sales Management System
 
+🔗 **Live Demo:** https://retail-inventory-system-6mjw.onrender.com
+
 A full-featured Inventory & Sales Management Web Application built using **Flask, Pandas, and Matplotlib** with CSV-based storage.
 
 This project simulates a real-world small business system where users can manage inventory, record sales, track revenue, and visualize analytics.
@@ -51,26 +53,3 @@ This project simulates a real-world small business system where users can manage
 ---
 
 ## 📂 Project Structure
-Inventory-Management-System/
-│
-├── app.py
-├── users.csv
-├── inventory.csv
-├── sales.csv
-│
-├── static/
-│ ├── chart.png
-│ ├── top_products.png
-│
-├── templates/
-│ ├── login.html
-│ ├── dashboard.html
-│ ├── add_product.html
-│ ├── record_sale.html
-│ ├── low_stock.html
-│ ├── search.html
-│ ├── sales_history.html
-│ └── top_products.html
-│
-└── README.md
-
