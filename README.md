@@ -53,3 +53,43 @@ This project simulates a real-world small business system where users can manage
 ---
 
 ## 📂 Project Structure
+ Inventory-Management-System/
+│
+├── app.py
+├── users.csv
+├── inventory.csv
+├── sales.csv
+│
+├── static/
+│ ├── chart.png
+│ ├── top_products.png
+│
+├── templates/
+│ ├── login.html
+│ ├── dashboard.html
+│ ├── add_product.html
+│ ├── record_sale.html
+│ ├── low_stock.html
+│ ├── search.html
+│ ├── sales_history.html
+│ └── top_products.html
+│
+└── README.md
+
+
+---
+
+## 🌟 How to Run Locally
+
+```bash
+pip install -r requirements.txt
+python app.py
+
+Then open:
+
+http://127.0.0.1:5000
+👩‍💻 Author
+
+Muskan Shaikh
+
+GitHub: https://github.com/Muskan2771
