@@ -77,30 +77,45 @@ def home():
 # ------------------------------
 @app.route('/dashboard')
 def dashboard():
+    try:
+        df_sales = pd.read_csv(os.path.join(BASE_DIR, 'sales.csv'))
+        df_inventory = pd.read_csv(os.path.join(BASE_DIR, 'inventory.csv'))
 
-    df_sales = pd.read_csv(os.path.join(BASE_DIR, 'sales.csv'))
-    df_inventory = pd.read_csv(os.path.join(BASE_DIR, 'inventory.csv'))
+        df_sales = df_sales.dropna()
 
-    revenue = df_sales.groupby('ProductName')['Total'].sum()
+        if df_sales.empty:
+            total_revenue = 0
+            revenue = pd.DataFrame()
+        else:
+            df_sales['Total'] = pd.to_numeric(df_sales['Total'], errors='coerce').fillna(0)
+            revenue = df_sales.groupby('ProductName')['Total'].sum()
+            total_revenue = df_sales['Total'].sum()
 
-    plt.figure(figsize=(6, 4))
-    revenue.plot(kind='bar')
-    plt.title("Revenue per Product")
-    plt.tight_layout()
+        df_inventory['Quantity'] = pd.to_numeric(df_inventory['Quantity'], errors='coerce').fillna(0)
 
-    chart_path = os.path.join(BASE_DIR, 'static', 'chart.png')
-    plt.savefig(chart_path)
-    plt.close()
+        low_stock = df_inventory[df_inventory['Quantity'] < 5].shape[0]
 
-    total_revenue = df_sales['Total'].sum()
-    low_stock = df_inventory[df_inventory['Quantity'] < 5].shape[0]
+        # chart only if data exists
+        plt.figure(figsize=(6,4))
+        if not revenue.empty:
+            revenue.plot(kind='bar')
+        plt.title("Revenue per Product")
+        plt.tight_layout()
 
-    return render_template(
-        'dashboard.html',
-        chart=url_for('static', filename='chart.png'),
-        total_revenue=total_revenue,
-        low_stock_count=low_stock
-    )
+        chart_path = os.path.join(BASE_DIR, 'static', 'chart.png')
+        plt.savefig(chart_path)
+        plt.close()
+
+        return render_template(
+            'dashboard.html',
+            chart=url_for('static', filename='chart.png'),
+            total_revenue=total_revenue,
+            low_stock_count=low_stock
+        )
+
+    except Exception as e:
+        return f"Dashboard error: {str(e)}"
+
 
 
 # ------------------------------
@@ -213,7 +228,9 @@ def record_sale():
 
         df_inventory = pd.read_csv(os.path.join(BASE_DIR, 'inventory.csv'))
 
-        product_id = int(request.form['product_id'])
+        product_id = str(request.form['product_id']).strip()
+        df_inventory['ProductID'] = df_inventory['ProductID'].astype(str).str.strip()
+        
         quantity_sold = int(request.form['quantity'])
         date = request.form['date']
 
